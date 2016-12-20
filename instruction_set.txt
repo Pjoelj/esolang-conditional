@@ -1,0 +1,62 @@
+
+
+2. rwtm
+Parameters: rx v
+Effect: Writes the contents of rx to memory address v, if possible.
+Flag status: Unset if the given memory address wasn't valid, couldn't be written to, or couldn't be dereferenced.
+
+3. rstv
+Parameters: rx v
+Effect: Sets the contents of rx to the value v.
+Flag status: Set if v could be dereferenced (or didn't need to be)
+
+4. rstr
+Parameters: rx ry
+Effect: Sets the contents of rx to be equal to the contents of ry
+Flag status: Always set
+
+5. radv 
+Parameters: rx v
+Effect: Adds v to the contents of rx, treating them as 32-bit unsigned or two's-complement integers.
+Flag status: Unset if v could not be dereferenced, otherwise set.
+
+6. radr
+Parameters: rx ry
+Effect: Adds the contents of ry to the contents of rx, treating both as 32-bit integers.
+Flag status: Always set
+
+7. rlng
+Paramters: rx
+Effect: Logically negates the contents of rx, leaving each bit set if it was previously unset and vice versa.
+Flag status: Always set.
+
+8. rang
+Parameters: rx : register
+Effect: Negates the contents of rx, treating it as a 32-bit 2's-complement integer.
+Flag status: Always set.
+
+9. reqr
+Parameters: rx, ry : register, register
+Effect: None
+Flag status: Set if the contents of rx and ry are equal.
+
+10. reqv
+Paramters: rx, v : register, value
+Effect: None
+Flag status: Set if v could be dereferenced
+rgtv #(register greater than value) noop, conditionally sets flag
+rgtr #(register greater than register) noop, conditionally sets flag
+
+
+A - Tests
+
+A1. noop
+Parameters: None
+Effect: None
+Flag status: Always set
+
+A2. tdrv
+Mnemonic: Test DeReference Value
+Parameters: v : value
+Effect: None (attempts to dereference v)
+Flag status: Set if v could be dereferenced, otherwise unset.
