@@ -1,0 +1,65 @@
+Each statement is one line.
+ex:
+noop
+
+Anything on a line that follows a # is a comment and will be ignored.
+ex:
+noop # I can write anything here and nothing happens.
+
+Each statement may be followed by some string detailing which flags should or shouldn't be set in order to execute that statement.
+A 1 means that flag must be set, a 0 means it must not be set and a . means it may or may not be set.
+If the flag string starts with a : all flags are considered, starting with the very first one.
+**Optional when implementing - if the : follows some number n, the last n flags are considered only.
+If flags are set according to that string, the statement is executed and the next flag is set
+ex:
+noop # No flag string - always executes. Flag 1 gets set
+noop :0 # Requires that flag 1 isn't set. Flag 1 is set, to this doesn't execute. Flag 2 isn't set.
+noop :.0 # Requires that flag 2 is unset. Executes and sets flag 3
+noop :101 # Requires that flags 1 and 3 are both set, but flag 2 isn't. Executes and sets flag 4
+noop 2:11 # Requires that the last two flags (flags 3 and 4) are both set. Executes and sets flag 5.
+
+If a statement doesn't execute, the flag isn't set. Certain statements can also conditionally not set their flags. A statement can never set a flag other than the one associated with it.
+
+
+TODO:::may be added in a later version
+A statement prefixed with a - will not have an associated flag. 
+ex:
+-rstv r0 5 # There is no associated flag.
+:::TODO
+
+
+When the program reaches its end, if the last flag isn't set, all flags are cleared and the program loops. The empty program is exceptionally defined to be the same as the program which only contains a single noop command, and thus will not loop.
+
+There are registers which contain one byte of information. Those are known as r0-r7.
+Memory can also be written to or read from using its address. Attempting to access memory without permission doesn't terminate the program, but also doesn't set that statement's flag.
+ex:
+rwtm r1 0 # unconditionally executes, but will still not set its flag
+
+Prefixing a parameter with @ causes the program to use that parameter's value as an address and use that address' value as the parameter.
+ex:
+radv r0 4000 # adds 4000 to whatever's in r0
+radv r0 @4000 # adds whatever value is stored at address 4000 to whatever's in r0
+radv r0 @@4000 # yet another step.
+radv r0 @@@@@@@@4000 # there's no real limit
+
+Instructions:
+noop #(no operation - does nothing)
+rwtm #(register write to memory)
+vwtm #(value write to memory)
+rstv #(register set to value)
+rstr #(register set to register)
+radv #(register add value)
+radr #(register add register)
+rlng #(register logical negate)
+rang #(register arithmetic negate)
+reqr #(register equals register) noop, conditionally sets flag
+reqv #(register equals value) noop, conditionally sets flag
+rgtv #(register greater than value) noop, conditionally sets flag
+rgtr #(register greater than register) noop, conditionally sets flag
+moup #(memory output: write x words to stdout)
+minp #(memory input: read x words from stdin) -- NOT YET IMPLEMENTED
+
+
+If a statement is prefixed by a ( it and subsequent statements up to and including the matching statement prefixed by a ) are considered a block.
+If the (-prefixed statement wouldn't set its flag, the rest of the block doesn't run.
+An unclosed block is a syntax error

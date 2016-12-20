@@ -1,0 +1,96 @@
+Each statement is one line.
+ex:
+noop
+
+Anything on a line that follows a # is a comment and will be ignored.
+ex:
+noop # I can write anything here and nothing happens.
+
+Each statement may be followed by some string detailing which flags should or shouldn't be set in order to execute that statement.
+A 1 means that flag must be set, a 0 means it must not be set and a . means it may or may not be set.
+If the flag string starts with a : all flags are considered, starting with the very first one.
+If the : follows some number n, it considers no flags before the n'th succeeding flag (or preceding if negative)
+Behaviour is not defined if a non-empty flag specifier doesn't match the regex (-?\d+)?:[01.]+
+If flags are set according to that string, the statement is executed and the next flag is set
+ex:
+noop # No flag string - always executes. Flag 1 gets set
+noop :0 # Requires that flag 1 isn't set. Flag 1 is set, so this doesn't execute. Flag 2 is unchanged (not set).
+noop :.0 # Requires that flag 2 is unset. Executes and sets flag 3
+noop :101 # Requires that flags 1 and 3 are both set, but flag 2 isn't. Executes and sets flag 4
+noop -2:11 # Requires that the preceding two flags (flags 3 and 4) are both set. Executes and sets flag 5.
+
+A statement, upon executing, may change the value of its flag. Generally, if the flag is unset, the statement has either failed recently, or has not yet been executed.
+When a program starts, all flags are guaranteed not to be set.
+
+A statement prefixed with a - will not have an associated flag. 
+It may still have a flag specifier. The succeeding statement's flag is considered to follow immediately after the preceding statement's flag.
+ex:
+reqr r0 r1 # May or may not set flag 1
+-rstv r0 5 # There is no associated flag.
+radv r1 @3 -1:1 # Executes if flag 1 is set (ignores the rstv statement)
+
+
+When the program reaches its end, if the last flag isn't set, the program loops. The empty program is exceptionally defined to be the same as the program which only contains a single noop command, and will thus terminate without looping.
+
+There are registers which can store 32 bits of information, called r0 through r7. On program start, these are guaranteed to contain all zeroes. Certain implementations may have larger underlying storage, but the registers must act as though they contained exactly 32 bits.
+
+Prefixing a parameter with @ causes the program to use that parameter's value as an address and use that address' value as the parameter.
+ex:
+radv r0 4000 # adds 4000 to whatever's in r0
+radv r0 @4000 # adds whatever value is stored at address 4000 to whatever's in r0
+radv r0 @@4000 # yet another step.
+radv r0 @@@@@@@@4000 # a large number of such dereferences are allowed. There's no strict upper or lower limit, however.
+
+
+
+
+
+Can register contents be dereferenced?
+If so:
+   Either value parameters need access to registers (reasonable, but makes it uglier and harder to program)
+   Or register parameters may access memory (which would mean losing out on efficiency)
+   Also, do we really need separate instructions for registers and values? Can't we just treat registers as a sort of pseudo-reference?
+But if not, everything just gets way worse
+
+So yes, @r1 is legal.
+   reqv r0 @r1 # Is legal, that is
+   reqr r0 @r1 # Is not legal, by contrast
+
+Do we really need reqr, though, or is reqv alone fine?
+Or is a single veqv function good enough?
+You know what, let's go with that.
+
+And if we treat rx as a pseudo-address, we're find with a single write instruction rather than our previous three.
+
+
+
+Subroutines, yay or nay?
+On one hand they'd be convenient. On the other hand, since calls to them are conditional, we do technically have a conditional jump instruction which is exactly what I designed this language not to have.
+
+I mean, we could just treat them as c preprocessor macros. We'd just lose out on simple callstack-based recursion, but I don't really mind that (let them make their own stacks)
+
+So, yes. They use the SDF, SDI and EDF pseudo-opcodes. SDF or SDI each take one "operand", which is a string. This string:
+* Must contain at least five characters
+* Must contain no whitespace characters
+* May contains a large number of characters
+That string will later be expanded into all instructions until the next EDF wherever it occurs. Nested occurences of the same string are not allowed - the compiler can treat those however it wants.
+
+SDF stands for Start DeFinition, SDI is Start Definition Isolated and EDF is End DeFintion.
+
+SDF will utilize flags as though the statements were simply inserted into the program. An SDF definition may not have a flag string - if FOO_1 was defined with SDF, FOO_1 :001 is a compile error
+SDI will maintain its own set of flags, which can't be accessed from outside it, and can't access outside flags. An SDI call can have a flag string but will not have an associated flag.
+
+
+
+
+
+
+
+
+Classes of implementation: Each class is a strict superset of the previous one. When implementing the language, strive to implement each class in order.
+0: Flag strings work, as does some subset of the instruction set.
+1: All opcodes work.
+2: SDF works.
+3: Flag-less statements work.
+4: SDI works.
+5: 

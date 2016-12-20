@@ -1,0 +1,12 @@
+noop #(no operation - does nothing)
+rwtm #(register write to memory)
+rstv #(register set to value)
+rstr #(register set to register)
+radv #(register add value)
+radr #(register add register)
+rlng #(register logical negate)
+rang #(register arithmetic negate)
+reqr #(register equals register) noop, conditionally sets flag
+reqv #(register equals value) noop, conditionally sets flag
+rgtv #(register greater than value) noop, conditionally sets flag
+rgtr #(register greater than register) noop, conditionally sets flag

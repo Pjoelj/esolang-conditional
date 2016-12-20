@@ -1,0 +1,8 @@
+# @0: Initial index of last cell
+# @1 through @@0: Value of each cell. Last bit is current value, second to last bit is next value. All else is 0s
+
+# r7 keeps track of which part of the program we're supposed to be in.
+
+# First, we go through the cells and set what their next value should be
+reqv r7 0
+# 
