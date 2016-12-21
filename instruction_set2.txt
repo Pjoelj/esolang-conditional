@@ -1,0 +1,71 @@
+A failed dereference of a value-type parameter ALWAYS unsets the flag for ANY command.
+
+**A - Tests**
+Opcode: DR
+Mnemonic: DeReference
+Operands: val
+Operand types: v
+Effect: None
+Flag status: Always set
+
+Opcode: EQ
+Mnemonic: EQuals
+Operands: v1, v2
+Operand types: v, v
+Effect: None
+Flag status: Set if v1 is equal to v2
+
+Opcode: GT
+Mnemonic: Greater Than
+Operands: v1, v2
+Operand types: v, v
+Effect: None
+Flag status: Set if v1 > v2
+
+Opcode: GE
+Mnemonic: Greater or Equal
+Operands: v1, v2
+Operand types: v, v
+Effect: None
+Flag status: Set if v1 ≥ v2
+
+**B - Modifications**
+Opcode: WT
+Mnenomic: WriTe
+Operands: addr, val
+Operand types: r/v, v
+Effect: @addr becomes equal to val
+Flag status: Always set
+
+Opcode: AD
+Mnemonic: ADd
+Operands: reg, val
+Operand types: r, v
+Effect @reg is increased by val, treating both as 32-bit integers.
+Flag status: Always set
+
+Opcode: SB
+Mnemonic: SuBtract
+Operands: r1, v1
+Operand types: r, v
+Effect: @r1 is decreased by v1, treating both as 32-bit unsigned integers
+Flag status: Always set
+
+Opcode: AN
+Mnemonic: logical ANd
+Operands: r1, v1
+Operand types: r, v
+Effect: Each bit in r1 becomes set iff it was set before and the corresponding bit in v1 is set.
+Flag status: Always set
+
+Opcode: OR
+Mnemonic: logical OR
+Operands: r1 (r), v1 (v)
+Effect: Each bit in r1 becomes set iff it or the corresponding bit in v1 was set.
+Flag status: Always set
+
+Opcode: NG
+Mnemonic: NeGate
+Operands: r1 (r)
+Effect: Each set bit in r1 is unset and vice versa.
+Flag status: Always set
